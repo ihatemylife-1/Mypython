@@ -12,7 +12,7 @@ os.system('clear')
 ip = input("Target IP: ")
 port = int(input("Target Port: "))
 os.system('clear')
-print("\nStarting UDP flood attack...\n")
+print("Starting UDP flood attack...")
 time.sleep(1)
 sent = 0
 while True:
