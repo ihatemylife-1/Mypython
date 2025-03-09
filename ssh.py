@@ -1,14 +1,16 @@
 import socket
 import ipaddress
 import threading
-import netifaces
 
-def get_local_subnet():
-    iface = netifaces.gateways()['default'][netifaces.AF_INET][1]
-    addr_info = netifaces.ifaddresses(iface)[netifaces.AF_INET][0]
-    ip = addr_info['addr']
-    netmask = addr_info['netmask']
-    network = ipaddress.IPv4Network(f"{ip}/{netmask}", strict=False)
+def get_local_ip():
+    hostname = socket.gethostname()
+    return socket.gethostbyname(hostname)
+
+def get_subnet():
+    ip = get_local_ip()
+    print(f"Detected IP: {ip}")
+    subnet_mask = input("Enter your subnet mask: ")
+    network = ipaddress.IPv4Network(f"{ip}/{subnet_mask}", strict=False)
     return network
 
 def scan_ip(ip):
@@ -19,7 +21,7 @@ def scan_ip(ip):
             print(f"[+] SSH Open: {ip}")
 
 def scan_network():
-    network = get_local_subnet()
+    network = get_subnet()
     print(f"Scanning network: {network}")
 
     threads = []
