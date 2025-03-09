@@ -2,13 +2,8 @@ import socket
 import ipaddress
 import threading
 
-def get_local_ip():
-    hostname = socket.gethostname()
-    return socket.gethostbyname(hostname)
-
 def get_subnet():
-    ip = get_local_ip()
-    print(f"Detected IP: {ip}")
+    ip = input("Enter your IP address: ")
     subnet_mask = input("Enter your subnet mask: ")
     network = ipaddress.IPv4Network(f"{ip}/{subnet_mask}", strict=False)
     return network
